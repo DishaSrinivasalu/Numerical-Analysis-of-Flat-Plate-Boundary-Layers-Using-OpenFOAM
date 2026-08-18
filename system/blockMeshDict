@@ -1,0 +1,111 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v1906                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+scale   1;//multiplies all coordinates in the vertices list by this number. since it is set to 1, the co-ord below are read directly in meters. If it were 0.001 then they would be read as mm
+
+vertices
+(
+    // === BOTTOM VERTICES (y = 0) ===
+    (-0.0762 0.0 0.0)      // 0: Bottom Inlet Left (x = -0.25 ft)
+    (0.0     0.0 0.0)      // 1: Leading Edge (x = 0.0 ft)
+    (0.3048  0.0 0.0)      // 2: Bottom Outlet Right (x = 1.0 ft)
+
+    // === TOP VERTICES (y = 0.0341 m / Constant Height) ===
+    (-0.0762 0.0341 0.0)   // 3: Top Inlet Left
+    (0.0     0.0341 0.0)   // 4: Top Middle
+    (0.3048  0.0341 0.0)   // 5: Top Outlet Right
+
+    // === 3D BACK PLANE VERTICES (z = 0.001 m for 2D Empty Patch) ===
+    (-0.0762 0.0 0.001)    // 6
+    (0.0     0.0 0.001)    // 7
+    (0.3048  0.0 0.001)    // 8
+    (-0.0762 0.0341 0.001) // 9
+    (0.0     0.0341 0.001) // 10
+    (0.3048  0.0341 0.001) // 11
+);
+
+blocks
+(
+    hex (0 1 4 3 6 7 10 9 ) (10 36 1) simpleGrading (1 50 1) //(40 40 1):no of mesh cells in x,y,z. 40 cells along x, 40 in y, 1 in z
+    hex (1 2 5 4 7 8 11 10) (40 36 1) simpleGrading (1 50 1) //(1 1 1): expansion ratios of cell means all cells are completely uniform in size
+);
+
+edges // empty because OF connects vertices with st lines. If we are using curved surface then we can define spline / arc in this
+(
+);
+
+boundary //boundary patches or BC
+(
+    inlet
+    {
+        type patch; // a generic patch type used for fluid entering or leaving
+        faces // patch:whether the boundary is a physical opening where fluid can freely enter/exit
+        (
+            (0 3 9 6)
+        );
+    }
+    outlet
+    {
+        type patch;
+        faces
+        (
+            (2 5 11 8)
+        );
+    }
+    plate
+    {
+        type wall; //treats this boundary as a mirror line
+        faces
+        (
+            (1 2 8 7)
+        );
+    }
+    farfield
+    {
+        type patch;
+        faces
+        (
+            (3 4 10 9)
+            (4 5 11 10)
+        );
+    }
+    upstreamSlip
+    {
+        type symmetry;
+        faces
+        (
+            (0 1 7 6)
+        );
+    }
+    frontAndBack
+    {
+        type empty;
+        faces
+        (
+            (0 1 4 3)   // Block 0 front
+            (1 2 5 4)   // Block 1 front
+            (6 7 10 9)  // Block 0 back
+            (7 8 11 10) // Block 1 back
+        );
+    }
+
+);
+
+mergePatchPairs //empty:
+(
+);
+
+// ************************************************************************* //

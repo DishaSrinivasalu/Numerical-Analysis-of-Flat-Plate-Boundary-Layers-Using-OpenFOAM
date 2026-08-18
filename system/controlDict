@@ -1,0 +1,182 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v1906                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     rhoPimpleFoam;//highly stable, density based, central-upwind comp flow solver. Explicitly designed for high speed supersonic and hypersonic flows
+
+startFrom       startTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+endTime         0.05;
+
+deltaT          0.00001;
+
+writeControl    runTime;//can be runStep also
+
+writeInterval   0.005;
+
+purgeWrite      0;
+
+writeFormat     ascii;
+
+writePrecision  6;
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable true;
+
+adjustTimeStep  yes;//instructs solver not to change the time step size automatically. It will strictly use the deltaT as specified
+
+maxCo           1;//
+
+maxDeltaT       1e-04;
+
+functions
+{
+    sampleVelocity
+    {
+        type            sets;
+        libs            (sampling);
+        setFormat       csv;
+        interpolationScheme cellPoint;
+        executeControl  writeTime;
+        writeControl    writeTime;
+        
+        sets
+        (
+            vertical_profile
+            {
+                type        midPoint; // OF syntax to get along the line in y, initially given "line", "lineCell" but didnt work
+                axis        y;
+                start       (0.0762 0 0);
+                end         (0.0762 0.0254 0); 
+            }
+	    );
+	fields		("U");
+    }
+
+    calculateDelta
+    {
+        type            coded;
+        libs            ("libutilityFunctionObjects.so");
+        name            computeBoundaryLayerThickness;
+
+        readFields      (U);
+
+        executeControl  writeTime;
+        writeControl    writeTime;
+
+        codeExecute
+        #{
+            #include <fstream>
+
+            const scalar U_inf = 39.53;
+            const scalar u_target = 0.99 * U_inf;
+
+            const List<scalar> x_probes({0.05, 0.10, 0.15, 0.20, 0.25, 0.30});
+            
+            const scalar y_min = 0.0;
+            const scalar y_max = 0.034; // Domain height in meters
+            const label nPoints = 200; 
+
+            if (mesh().foundObject<volVectorField>("U"))
+            {
+                const volVectorField& U = mesh().lookupObject<volVectorField>("U");
+
+                // Save data to case1_delta_vs_x.csv in case directory
+                std::ofstream outFile("case1_delta_vs_x.csv");
+                outFile << "x_m,delta_m" << std::endl;
+
+                Info<< "\n=============================================" << nl;
+                Info<< "  BOUNDARY LAYER THICKNESS (delta) AT 99% U_inf" << nl;
+                Info<< "=============================================" << nl;
+
+                for (const scalar x_p : x_probes)
+                {
+                    scalar delta = 0.0;
+                    scalar y_prev = 0.0;
+                    scalar u_prev = 0.0;
+                    bool found = false;
+
+                    for (label i = 0; i < nPoints; ++i)
+                    {
+                        scalar y_curr = y_min + i * (y_max - y_min) / (nPoints - 1);
+                        point samplePoint(x_p, y_curr, 0.0); 
+
+                        label cellI = mesh().findCell(samplePoint);
+                        if (cellI != -1)
+                        {
+                            scalar u_curr = U[cellI].x();
+
+                            if (u_curr >= u_target && !found)
+                            {
+                                if (i > 0 && u_curr != u_prev)
+                                {
+                                    delta = y_prev + (u_target - u_prev) * (y_curr - y_prev) / (u_curr - u_prev);
+                                }
+                                else
+                                {
+                                    delta = y_curr;
+                                }
+                                found = true;
+                                break; 
+                            }
+
+                            u_prev = u_curr;
+                            y_prev = y_curr;
+                        }
+                    }
+
+                    Info<< "x = " << x_p << " m  -->  delta = " << delta << " m" << nl;
+                    outFile << x_p << "," << delta << std::endl;
+                }
+                Info<< "=============================================\n" << nl;
+                outFile.close();
+            }
+        #};
+    }
+
+    sampleShear
+    {
+   
+        type		    sets;
+	    libs		    (sampling);
+	    setFormat	    csv;
+	    interpolationScheme cellPoint;
+	    executeControl  writeTime;
+	    writeControl    writeTime;
+	    sets
+	    (
+            plate_shear
+            {
+                type        uniform;
+                axis        x;
+		        nPoints	    100;
+                start       (0 0 0);
+                end         (0.3048 0 0);
+            }
+        );
+        fields          ("wallShearStress"); // initially given  (U wallShearStress) didnt work
+    }
+}
+
