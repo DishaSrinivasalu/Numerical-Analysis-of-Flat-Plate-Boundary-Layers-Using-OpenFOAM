@@ -1,0 +1,51 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2512                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    object      omega;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 0 -1 0 0 0 0]; // 1/s
+
+internalField   uniform 1000.0;
+
+boundaryField
+{
+    inlet
+    {
+        type            fixedValue;
+        value           uniform 1000.0;
+    }
+    outlet
+    {
+        type            inletOutlet;
+        inletValue      uniform 1000.0;
+        value           uniform 1000.0;
+    }
+    top
+    {
+        type            zeroGradient;
+    }
+    upstreamWall
+    {
+        type            symmetryPlane;
+    }
+    plate
+    {
+        type            omegaWallFunction;
+        value           uniform 1000.0;
+    }
+    frontAndBack
+    {
+        type            empty;
+    }
+}
