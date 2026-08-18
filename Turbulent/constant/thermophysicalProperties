@@ -1,0 +1,38 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      thermophysicalProperties;
+}
+
+thermoType
+{
+    type            heRhoThermo;
+    mixture         pureMixture;
+    transport       sutherland;
+    thermo          hConst;
+    equationOfState perfectGas;
+    specie          specie;
+    energy          sensibleEnthalpy;
+}
+
+mixture
+{
+    specie
+    {
+        molWeight       28.96;      // Molecular weight of air (kg/kmol)
+    }
+    thermodynamics
+    {
+        Cp              1004.5;     // Specific heat capacity (J/kg.K)
+        Hf              0;          // Enthalpy of formation
+    }
+    transport
+    {
+        As              1.458e-06;
+        Ts              110.4;   // Dynamic viscosity (Pa.s) -> gives nu ~ 1.51e-5 m^2/s
+        Pr              0.71;       // Laminar Prandtl number
+    }
+}

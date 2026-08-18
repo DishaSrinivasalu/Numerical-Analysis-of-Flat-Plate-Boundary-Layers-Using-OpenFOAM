@@ -1,0 +1,88 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2512                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    arch        "LSB;label=32;scalar=64";
+    class       dictionary;
+    location    "0.0999872/uniform/functionObjects";
+    object      functionObjectProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+cdf7e925f5746741c316f5fbcf39ad0dfca90775
+{
+    sampleProfile_x_2.27
+    {
+        scalar
+        {
+            average(profileLine_x_2.27,k) 1.112179428224947;
+            min(profileLine_x_2.27,k) 0.1396720991241759;
+            max(profileLine_x_2.27,k) 25.89810750628731;
+            average(wallPoint_x_2.27,k) 25.89810750628731;
+            min(wallPoint_x_2.27,k) 25.89793043753237;
+            max(wallPoint_x_2.27,k) 25.89828457504225;
+            average(k)      1.29669005907901;
+            min(k)          0.1396720991241759;
+            max(k)          25.89828457504225;
+        }
+        label
+        {
+            size(profileLine_x_2.27,k) 400;
+            size(wallPoint_x_2.27,k) 3;
+            size(k)         403;
+            size(profileLine_x_2.27,U) 400;
+            size(wallPoint_x_2.27,U) 3;
+            size(U)         403;
+            size(profileLine_x_2.27,wallShearStress) 400;
+            size(wallPoint_x_2.27,wallShearStress) 3;
+            size(wallShearStress) 403;
+        }
+        vector
+        {
+            average(profileLine_x_2.27,U) ( 67.83165200000001 0.088674199 0 );
+            min(profileLine_x_2.27,U) ( 0 0 0 );
+            max(profileLine_x_2.27,U) ( 68.801762 0.093996805 0 );
+            average(wallPoint_x_2.27,U) ( 4.7927294e-31 2.4309836e-36 0 );
+            min(wallPoint_x_2.27,U) ( 0 0 0 );
+            max(wallPoint_x_2.27,U) ( 1.4378188e-30 7.2929508e-36 0 );
+            average(U)      ( 67.326702 0.088014093 0 );
+            min(U)          ( 0 0 0 );
+            max(U)          ( 68.801762 0.093996805 0 );
+            average(profileLine_x_2.27,wallShearStress) ( -0.015307729 -1.4040588e-07 0 );
+            min(profileLine_x_2.27,wallShearStress) ( -6.1230915 -5.6162354e-05 0 );
+            max(profileLine_x_2.27,wallShearStress) ( 0 0 0 );
+            average(wallPoint_x_2.27,wallShearStress) ( -6.1230915 -5.6162354e-05 0 );
+            min(wallPoint_x_2.27,wallShearStress) ( -6.1231318 -5.6165552e-05 0 );
+            max(wallPoint_x_2.27,wallShearStress) ( -6.1230512 -5.6159156e-05 0 );
+            average(wallShearStress) ( -0.060775102 -5.5744272e-07 0 );
+            min(wallShearStress) ( -6.1231318 -5.6165552e-05 0 );
+            max(wallShearStress) ( 0 0 0 );
+        }
+    }
+}
+
+sampleProfile_x_2.27
+{
+    k
+    {
+        file            "<case>/postProcessing/sampleProfile_x_2.27/0.0999872/wallPoint_x_2.27_k_U_wallShearStress.xy";
+    }
+    U
+    {
+        file            "<case>/postProcessing/sampleProfile_x_2.27/0.0999872/wallPoint_x_2.27_k_U_wallShearStress.xy";
+    }
+    wallShearStress
+    {
+        file            "<case>/postProcessing/sampleProfile_x_2.27/0.0999872/wallPoint_x_2.27_k_U_wallShearStress.xy";
+    }
+}
+
+
+// ************************************************************************* //
