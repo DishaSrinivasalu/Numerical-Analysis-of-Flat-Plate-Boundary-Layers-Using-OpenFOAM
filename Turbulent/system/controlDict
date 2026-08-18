@@ -1,0 +1,108 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+
+application     rhoPimpleFoam;
+
+startFrom       startTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+// Domain length ~ 5.7 m at U_inf = 68.79 m/s gives 1 Flow-Through Time (FTT) ~ 0.083 s.
+// Running to 0.5 s ensures ~ 6 full flow-throughs for a steady boundary layer.
+endTime         0.5;
+
+// Initial time step (will auto-adjust based on maxCo)
+deltaT          1e-6;
+
+writeControl    runTime;
+
+writeInterval   0.05;
+
+purgeWrite      0;
+
+writeFormat     ascii;
+
+writePrecision  8;
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable true;
+
+// --- Adaptive Time Stepping Settings ---
+adjustTimeStep  yes;
+
+maxCo           0.8;
+
+//maxAcousticCo   5.0; // For compressible solvers like rhoPimpleFoam
+
+maxDeltaT       1e-4;
+
+
+// --- Runtime Post-Processing Functions ---
+functions
+{
+    // Automatically calculates y+ on the flat plate patch
+    yPlus
+    {
+        type            yPlus;
+        libs            ("libfieldFunctionObjects.so");
+        writeControl    writeTime;
+        patches         (plate);
+    }
+
+    // Automatically calculates Wall Shear Stress (tau_w) to extract Cf
+    wallShearStress
+    {
+        type            wallShearStress;
+        libs            ("libfieldFunctionObjects.so");
+        writeControl    writeTime;
+        patches         (plate);
+    }
+    // Automatically samples U, k, and tau_w at x = 2.27 m (Re_x = 1.03e7)
+    sampleProfile_x_2.27
+    {
+        type            sets;
+        libs            ("libsampling.so");
+        writeControl    writeTime;
+
+        interpolationScheme cellPoint;
+        setFormat       raw;
+
+        sets
+        (
+            profileLine_x_2.27
+            {
+                type        uniform;        // Changed from lineUniform to uniform
+                axis        y;
+                start       (2.27 0.0000 0.0005);
+                end         (2.27 0.3048 0.0005);
+                nPoints     400;
+            }
+
+            wallPoint_x_2.27
+            {
+                type        uniform;        // Changed from lineUniform to uniform
+                axis        x;
+                start       (2.2699 0.0000 0.0005);
+                end         (2.2701 0.0000 0.0005);
+                nPoints     3;
+            }
+        );
+
+        fields          ( U k wallShearStress );
+    }
+}
+
+// ************************************************************************* //

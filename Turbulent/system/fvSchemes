@@ -1,0 +1,66 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSchemes;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+ddtSchemes
+{
+    default         Euler;
+}
+
+gradSchemes
+{
+    default         Gauss linear;
+    grad(U)         Gauss linear;
+    grad(e)         Gauss linear;
+    grad(p)         Gauss linear;
+}
+
+divSchemes
+{
+    default         none;
+
+    // Advection of velocity (2nd-order linear-upwind for accuracy)
+    div(phi,U)      Gauss linearUpwind grad(U);
+
+    // Advection of energy (e or h depending on thermophysicalProperties)
+    div(phi,e)      Gauss limitedLinear 1.0;
+    div(phi,h)      Gauss limitedLinear 1.0;
+    div(phi,e)      Gauss limitedLinear 1.0;
+    div(phi,K)      Gauss linear;
+
+    // Turbulence transport schemes (bounded 2nd-order limited linear)
+    div(phi,k)      Gauss limitedLinear 1.0;
+    div(phi,omega)  Gauss limitedLinear 1.0;
+
+    // Compressible flow density and pressure work terms
+    div(phid,p)     Gauss linear;
+    div(phi,e)      Gauss limitedLinear 1.0;
+    div(((rho*nuEff)*dev2(T(grad(U))))) Gauss linear;
+}
+
+laplacianSchemes
+{
+    default         Gauss linear corrected;
+}
+
+interpolationSchemes
+{
+    default         linear;
+}
+
+snGradSchemes
+{
+    default         corrected;
+}
+
+wallDist
+{
+    method          meshWave;
+}
+// ************************************************************************* //

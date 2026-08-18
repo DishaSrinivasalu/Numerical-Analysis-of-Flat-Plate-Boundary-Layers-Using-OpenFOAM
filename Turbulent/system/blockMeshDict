@@ -1,0 +1,85 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+
+scale   1.0;
+
+vertices
+(
+    // Block 0: Upstream region (x = -0.6096 m to 0.0 m)
+    (-0.609600  0.000000 -0.005000) // 0
+    ( 0.000000  0.000000 -0.005000) // 1 (Leading edge x = 0)
+    ( 0.000000  0.304800 -0.005000) // 2
+    (-0.609600  0.304800 -0.005000) // 3
+    (-0.609600  0.000000  0.005000) // 4
+    ( 0.000000  0.000000  0.005000) // 5 (Leading edge x = 0)
+    ( 0.000000  0.304800  0.005000) // 6
+    (-0.609600  0.304800  0.005000) // 7
+
+    // Block 1: Flat plate region (x = 0.0 m to 5.09 m)
+    ( 5.090000  0.000000 -0.005000) // 8 (Trailing edge)
+    ( 5.090000  0.304800 -0.005000) // 9
+    ( 5.090000  0.000000  0.005000) // 10 (Trailing edge)
+    ( 5.090000  0.304800  0.005000) // 11
+);
+
+blocks
+(
+    // Block 0: Upstream (x < 0)
+    hex (0 1 2 3 4 5 6 7) (14 80 1) simpleGrading (0.02 75 1.0)
+
+    // Block 1: Plate region (x > 0)
+    hex (1 8 9 2 5 10 11 6) (96 80 1) simpleGrading (50 75 1.0)
+);
+
+edges ();
+
+boundary
+(
+    inlet
+    {
+        type        patch;
+        faces       ((0 4 7 3));
+    }
+    outlet
+    {
+        type        patch;
+        faces       ((8 9 11 10));
+    }
+    top
+    {
+        type        patch;
+        faces
+        (
+            (3 7 6 2)
+            (2 6 11 9)
+        );
+    }
+    upstreamWall
+    {
+        type        symmetryPlane;
+        faces       ((0 1 5 4));
+    }
+    plate
+    {
+        type        wall;
+        faces       ((1 8 10 5));
+    }
+    frontAndBack
+    {
+        type        empty;
+        faces
+        (
+            (0 3 2 1)
+            (4 5 6 7)
+            (1 2 9 8)
+            (5 10 11 6)
+        );
+    }
+);
+
+mergePatchPairs ();
